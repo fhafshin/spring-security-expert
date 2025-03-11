@@ -1,15 +1,13 @@
 package com.example.security.config;
 
+import com.example.security.exceptionHandling.CustomAccessDeniedHandler;
 import com.example.security.exceptionHandling.CustomBasicAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -17,25 +15,38 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class ProjectSecurityConfig {
 
 
-
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                //.requiresChannel(rcc->rcc.anyRequest().requiresSecure()) برای https را فعال کردن
+
+               // .requiresChannel(rcc -> rcc.anyRequest().requiresSecure()) //برای https را فعال کردن
                 .authorizeHttpRequests((request) -> request
+
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/notices",
-                                "/contact"
+                                "/contact",
+                                "/invalid-session"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/create").permitAll()
+                        .requestMatchers("/my").denyAll()
                         .anyRequest().authenticated())
+                .sessionManagement(smc -> smc.sessionFixation().newSession()
+
+                        .invalidSessionUrl("/invalid-session").maximumSessions(1)
+                        .maxSessionsPreventsLogin(true)//محدودیت تعداد لاگین
+
+                )
                 //.csrf(csrf -> csrf.ignoringRequestMatchers("/user/create","v3/api-docs/**", "/swagger-ui/**"));
-                        .csrf(csrf->csrf.disable());
-        http.httpBasic(hbb->hbb.authenticationEntryPoint(hbbCustomAuthenticationEntryPoint()));
+                .csrf(csrf -> csrf.disable());
+        http.httpBasic(hbb -> hbb.authenticationEntryPoint(hbbCustomAuthenticationEntryPoint()));
+        http.exceptionHandling(ehc -> ehc.accessDeniedHandler(ehcCustomAccessDeniedHandler())
+                //  .accessDeniedPage("/access-denied")
+        );
+
         http.formLogin(withDefaults());
         return http.build();
     }
@@ -46,6 +57,10 @@ public class ProjectSecurityConfig {
         return new CustomBasicAuthenticationEntryPoint();
     }
 
+    @Bean
+    public CustomAccessDeniedHandler ehcCustomAccessDeniedHandler() {
+        return new CustomAccessDeniedHandler();
+    }
 
     //بارگزاری از روی حافظه
 //    @Bean
@@ -61,7 +76,6 @@ public class ProjectSecurityConfig {
 //    }
 
 
-
     //اجرای پیش فرض لاگین
     //لازم است ابتدا دو جدول مطابق باا جداول پیشنهادی ساخته شود تا کار کند همچنین لازم است پسورد انکدر نیز از نوع عمومی باشد
 //    @Bean
@@ -71,9 +85,9 @@ public class ProjectSecurityConfig {
 
     @Bean
     PasswordEncoder passwordEncoder() {
-       // return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        // return PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
-        
+
         return new CustomEncodePassword();
     }
 
