@@ -1,21 +1,29 @@
 package com.example.security.config;
 
+import com.example.security.exceptionHandling.CustomBasicAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 public class ProjectSecurityConfig {
 
+
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http.authorizeHttpRequests((request) -> request
+        http
+                //.requiresChannel(rcc->rcc.anyRequest().requiresSecure()) برای https را فعال کردن
+                .authorizeHttpRequests((request) -> request
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
@@ -23,12 +31,19 @@ public class ProjectSecurityConfig {
                                 "/notices",
                                 "/contact"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/create").permitAll()
                         .anyRequest().authenticated())
-                .csrf(csrf -> csrf.ignoringRequestMatchers("v3/api-docs/**", "/swagger-ui/**"));
-
-        http.httpBasic(withDefaults());
+                //.csrf(csrf -> csrf.ignoringRequestMatchers("/user/create","v3/api-docs/**", "/swagger-ui/**"));
+                        .csrf(csrf->csrf.disable());
+        http.httpBasic(hbb->hbb.authenticationEntryPoint(hbbCustomAuthenticationEntryPoint()));
         http.formLogin(withDefaults());
         return http.build();
+    }
+
+
+    @Bean
+    public CustomBasicAuthenticationEntryPoint hbbCustomAuthenticationEntryPoint() {
+        return new CustomBasicAuthenticationEntryPoint();
     }
 
 
@@ -56,9 +71,10 @@ public class ProjectSecurityConfig {
 
     @Bean
     PasswordEncoder passwordEncoder() {
-      //  return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+       // return PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
-       return new CustomEncodePassword();
+        
+        return new CustomEncodePassword();
     }
 
 //استعلام از api پسورد های ساده

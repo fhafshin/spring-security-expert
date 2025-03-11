@@ -9,6 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 
 @SpringBootApplication
 //@EntityScan("com.example.security")
@@ -32,16 +33,20 @@ public class EasyBankBackendApplication implements CommandLineRunner {
     @Transactional
     @Override
     public void run(String... args) throws Exception {
-        Customer admin = new Customer();
-        admin.setEmail("admin@email.com");
-        admin.setPwd(new CustomEncodePassword().encode("123"));
-        admin.setRole("admin");
-        Customer user = new Customer();
-        user.setEmail("user@email.com");
-        user.setPwd(new CustomEncodePassword().encode("123"));
-        user.setRole("read");
+//        Customer admin = new Customer();
+//        admin.setEmail("admin@email.com");
+//        admin.setPwd(new CustomEncodePassword().encode("123"));
+//        admin.setRole("admin");
+//        Customer user = new Customer();
+//        user.setEmail("user@email.com");
+//        user.setPwd(new CustomEncodePassword().encode("123"));
+//        user.setRole("read");
+//
+//        customerRepository.save(admin);
+//        customerRepository.save(user);
 
-        customerRepository.save(admin);
-        customerRepository.save(user);
+
+
+
     }
 }
