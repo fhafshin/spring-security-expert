@@ -1,19 +1,16 @@
 package com.example.security;
 
-import com.example.security.config.CustomEncodePassword;
-import com.example.security.entity.Customer;
 import com.example.security.repository.CustomerRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 @SpringBootApplication
 //@EntityScan("com.example.security")
 //@EnableJpaRepositories("com.example.security")
+@EnableWebSecurity(debug = true)
 public class EasyBankBackendApplication implements CommandLineRunner {
 
     private final CustomerRepository customerRepository;
@@ -44,7 +41,6 @@ public class EasyBankBackendApplication implements CommandLineRunner {
 //
 //        customerRepository.save(admin);
 //        customerRepository.save(user);
-
 
 
 
