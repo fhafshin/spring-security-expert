@@ -2,12 +2,17 @@ package com.example.security.config;
 
 import com.example.security.exceptionHandling.CustomAccessDeniedHandler;
 import com.example.security.exceptionHandling.CustomBasicAuthenticationEntryPoint;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.util.Collections;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -20,8 +25,9 @@ public class ProjectSecurityConfig {
 
         http
 
-               // .requiresChannel(rcc -> rcc.anyRequest().requiresSecure()) //برای https را فعال کردن
+                // .requiresChannel(rcc -> rcc.anyRequest().requiresSecure()) //برای https را فعال کردن
                 .authorizeHttpRequests((request) -> request
+
 
                         .requestMatchers(
                                 "/v3/api-docs/**",
@@ -41,8 +47,21 @@ public class ProjectSecurityConfig {
 
                 )
                 //.csrf(csrf -> csrf.ignoringRequestMatchers("/user/create","v3/api-docs/**", "/swagger-ui/**"));
-                .csrf(csrf -> csrf.disable());
-        http.httpBasic(hbb -> hbb.authenticationEntryPoint(hbbCustomAuthenticationEntryPoint()));
+                .csrf(csrf -> csrf.disable())
+                .cors(cors->cors.configurationSource(new CorsConfigurationSource() {
+                    @Override
+                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                        CorsConfiguration config = new CorsConfiguration();
+                        config.setAllowedOrigins(Collections.singletonList("http://localhost:5173/"));
+                        config.setAllowedMethods(Collections.singletonList("*"));
+                        config.setAllowedHeaders(Collections.singletonList("*"))  ;
+                        config.setAllowCredentials(true);
+                        config.setMaxAge(3600L);
+
+                        return config;
+                    }
+                }));
+        http.httpBasic(hbb -> hbb.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
         http.exceptionHandling(ehc -> ehc.accessDeniedHandler(ehcCustomAccessDeniedHandler())
                 //  .accessDeniedPage("/access-denied")
         );
@@ -52,10 +71,10 @@ public class ProjectSecurityConfig {
     }
 
 
-    @Bean
-    public CustomBasicAuthenticationEntryPoint hbbCustomAuthenticationEntryPoint() {
-        return new CustomBasicAuthenticationEntryPoint();
-    }
+//    @Bean
+//    public CustomBasicAuthenticationEntryPoint hbbCustomAuthenticationEntryPoint() {
+//        return new CustomBasicAuthenticationEntryPoint();
+//    }
 
     @Bean
     public CustomAccessDeniedHandler ehcCustomAccessDeniedHandler() {
