@@ -1,6 +1,12 @@
 package com.example.security.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "customer")
@@ -12,6 +18,18 @@ public class Customer {
     private String email;
     private String pwd;
     private String role;
+
+    @OneToMany(mappedBy = "customer",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @JsonIgnore
+    private Set<Authorities> authoritiesList=new HashSet<>();
+
+    public Set<Authorities> getAuthoritiesList() {
+        return authoritiesList;
+    }
+
+    public void setAuthoritiesList(Set<Authorities> authoritiesList) {
+        this.authoritiesList = authoritiesList;
+    }
 
     public int getId() {
         return id;

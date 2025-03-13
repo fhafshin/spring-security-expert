@@ -2,6 +2,7 @@ package com.example.security.config;
 
 import com.example.security.exceptionHandling.CustomAccessDeniedHandler;
 import com.example.security.exceptionHandling.CustomBasicAuthenticationEntryPoint;
+import com.example.security.filter.AuthoritiesLoggingAfterFilter;
 import com.example.security.filter.RequestValidationBeforeFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
@@ -60,6 +61,8 @@ public class ProjectSecurityConfig {
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
+                .addFilterAfter(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class)
+
                 .cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {

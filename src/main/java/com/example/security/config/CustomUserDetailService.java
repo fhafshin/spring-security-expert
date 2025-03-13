@@ -11,8 +11,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomUserDetailService implements UserDetailsService {
@@ -30,7 +32,10 @@ private final PasswordEncoder passwordEncoder;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Customer customer = customerRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Customer Not Found"));
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(customer.getRole()));
+
+        List<GrantedAuthority> authorities = customer.getAuthoritiesList().stream()
+                .map(authority->new SimpleGrantedAuthority( authority.getName())).collect(Collectors.toList());
+
         return new User(customer.getEmail(), customer.getPwd(), authorities);
     }
 
