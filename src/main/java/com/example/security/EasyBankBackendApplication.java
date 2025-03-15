@@ -5,12 +5,13 @@ import jakarta.transaction.Transactional;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 @SpringBootApplication
 //@EntityScan("com.example.security")
 //@EnableJpaRepositories("com.example.security")
-@EnableWebSecurity(debug = true)
+//@EnableWebSecurity(debug = true)
+@EnableMethodSecurity(jsr250Enabled = true,securedEnabled = true)
 public class EasyBankBackendApplication implements CommandLineRunner {
 
     private final CustomerRepository customerRepository;
